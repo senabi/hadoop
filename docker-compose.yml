@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  namenode:
+    image: ${HADOOP_IMAGE}
+    build: ${HADOOP_GIT_URL}
+    environment: 
+      - "DFS_NAMENODE_RPC_BIND_HOST=$DFS_NAMENODE_RPC_BIND_HOST"
+      - "DFS_REPLICATION=$DFS_REPLICATION"
+    ports:
+      - "$DFS_NAMENODE_HTTP_PORT:$DFS_NAMENODE_HTTP_PORT"
+      - "$DFS_NAMENODE_RPC_PORT:$DFS_NAMENODE_RPC_PORT"
+    volumes:
+      - config:${HADOOP_HOME}/etc/hadoop
+  
+  datanode:
+    image: ${HADOOP_IMAGE}
+    build: ${HADOOP_GIT_URL}
+    depends_on: 
+      - namenode
+    environment: 
+      - "DFS_NAMENODE_RPC_BIND_HOST=$DFS_NAMENODE_RPC_BIND_HOST"
+      - "DFS_REPLICATION=$DFS_REPLICATION"
+    ports:
+      - "$DFS_DATANODE_HTTP_PORT:$DFS_DATANODE_HTTP_PORT"
+      - "$DFS_DATANODE_RPC_PORT:$DFS_DATANODE_RPC_PORT"
+    command: datanode
+    volumes:
+      - config:${HADOOP_HOME}/etc/hadoop
+
+volumes:
+  config:
