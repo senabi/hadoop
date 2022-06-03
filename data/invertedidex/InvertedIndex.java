@@ -46,12 +46,12 @@ public class InvertedIndex {
         Context context) throws IOException, InterruptedException {
 
       Set<Text> out = new HashSet<Text>();
-      for (Text val : values) {
-        out.add(val);
-      }
       StringBuilder sb = new StringBuilder();
-      for (Text val : out) {
-        sb.append(val.toString() + " ");
+      for (Text value : values) {
+        if (!out.contains(value)) {
+          sb.append(value.toString() + " ");
+        }
+        out.add(value);
       }
       context.write(key, new Text(sb.toString()));
     }
