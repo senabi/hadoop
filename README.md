@@ -8,7 +8,7 @@ Apache Hadoop 3 dockerisation
 
 You can launch the build directly from a git branch
 
-`docker build -t jsminet/docker-apache-hadoop:3.3.3 .`
+`docker build -t local-hadoop:3.3.3 .`
 
 ---
 

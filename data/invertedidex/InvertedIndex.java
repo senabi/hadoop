@@ -1,5 +1,12 @@
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.*;
 import java.util.StringTokenizer;
+
+import javax.naming.Context;
+import javax.print.attribute.IntegerSyntax;
+
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -18,31 +25,35 @@ public class InvertedIndex {
       extends Mapper<Object, Text, Text, Text> {
 
     private Text word = new Text();
+    private Text fileLoc = new Text();
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-      StringTokenizer itr = new StringTokenizer(value.toString());
-      // get the file name
       String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
+      fileLoc.set(fileName);
+
+      StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
-        context.write(word, new Text(fileName));
+        context.write(word, fileLoc);
       }
     }
   }
 
   public static class TextAppendReducer
-      extends Reducer<Text, IntWritable, Text, Text> {
-    private Text result = new Text();
+      extends Reducer<Text, Text, Text, Text> {
 
     public void reduce(Text key, Iterable<Text> values,
         Context context) throws IOException, InterruptedException {
-      // create a string array to store the file names
-      String fileNames = "";
+
+      Set<Text> out = new HashSet<Text>();
       for (Text val : values) {
-        fileNames += " " + val.toString();
+        out.add(val);
       }
-      result.set(fileNames);
-      context.write(key, result);
+      StringBuilder sb = new StringBuilder();
+      for (Text val : out) {
+        sb.append(val.toString() + " ");
+      }
+      context.write(key, new Text(sb.toString()));
     }
   }
 
@@ -51,12 +62,14 @@ public class InvertedIndex {
     Job job = Job.getInstance(conf, "Inverted Index");
     job.setJarByClass(InvertedIndex.class);
     job.setMapperClass(TokenizerMapper.class);
-    job.setCombinerClass(TextAppendReducer.class);
+    // job.setCombinerClass(TextAppendReducer.class);
     job.setReducerClass(TextAppendReducer.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
+
     FileInputFormat.addInputPath(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
