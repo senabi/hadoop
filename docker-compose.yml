@@ -27,6 +27,7 @@ services:
     command: datanode
     volumes:
       - config:${HADOOP_HOME}/etc/hadoop
+      - ./data:/root/data
 
 volumes:
   config:

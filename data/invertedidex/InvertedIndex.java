@@ -1,6 +1,6 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
-
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -10,6 +10,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 public class InvertedIndex {
 
@@ -38,7 +39,7 @@ public class InvertedIndex {
       // create a string array to store the file names
       String fileNames = "";
       for (Text val : values) {
-        fileNames += " " + val.get();
+        fileNames += " " + val.toString();
       }
       result.set(fileNames);
       context.write(key, result);

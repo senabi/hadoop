@@ -4,16 +4,17 @@ LABEL maintainer="JS Minet"
 ENV HADOOP_VERSION 3.3.3
 ENV HADOOP_HOME /opt/hadoop-${HADOOP_VERSION}
 
-ENV BUILD_DEPS tini
+ENV BUILD_DEPS tini neovim zsh
 ENV PATH $PATH:${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin
 
 COPY docker-entrypoint.sh /usr/local/bin/
+COPY .zshrc /root/.zshrc
 
 WORKDIR /opt
 
 RUN set -ex && \
   apt-get update && DEBIAN_FRONTEND=noninteractive && \
-  apt-get install -y --no-install-recommends ${BUILD_DEPS} zsh && \
+  apt-get install -y --no-install-recommends ${BUILD_DEPS} && \
   wget --progress=bar:force:noscroll -O hadoop-binary.tar.gz \
   "http://apache.mirror.iphh.net/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" && \
   tar -xvf hadoop-binary.tar.gz && \
